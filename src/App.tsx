@@ -8,11 +8,13 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Episodes from './components/Episodes';
 import HostPage from './components/HostPage';
+import LoadingScreen from './components/LoadingScreen';
 
 type View = 'home' | 'episodes' | 'host';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('home');
+  const [isLoading, setIsLoading] = useState(true);
 
   // Handle browser back/forward buttons
   useEffect(() => {
@@ -66,11 +68,16 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-block-black text-white selection:bg-block-red selection:text-white">
-      <Navbar currentView={currentView} onNavigate={navigateTo} />
-      {renderView()}
-      <Footer />
-    </div>
+    <>
+      {isLoading && (
+        <LoadingScreen onLoadingComplete={() => setIsLoading(false)} />
+      )}
+      <div className={`min-h-screen bg-block-black text-white selection:bg-block-red selection:text-white ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}>
+        <Navbar currentView={currentView} onNavigate={navigateTo} />
+        {renderView()}
+        <Footer />
+      </div>
+    </>
   );
 }
 

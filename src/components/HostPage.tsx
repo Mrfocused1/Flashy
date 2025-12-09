@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Play, ChevronRight, X, ExternalLink, Calendar, Instagram, Youtube, FileText, Headphones, ArrowUpRight } from 'lucide-react';
 
 // Flashy Sillah photo from Complex UK interview
-const HOST_IMAGE_URL = 'https://images.complex.com/complex/image/upload/q_auto,f_auto,c_fill,ar_1.11,w_2048,g_auto/v1723842154/sanity-new/flashy-sillah-the-block-report-interview-134049891.png';
+const HOST_IMAGE_URL = '/flashy-sillah.jpg';
 
 interface MediaItem {
   id: string;
@@ -204,11 +204,19 @@ const timeline = [
   },
 ];
 
+// Sites that block iframe embedding - show preview card instead
+const BLOCKED_EMBED_DOMAINS = ['complex.com', '99piece.com'];
+
 // Content Modal Component - handles articles, podcasts, and videos
 const ContentModal: React.FC<{
   item: MediaItem;
   onClose: () => void;
 }> = ({ item, onClose }) => {
+  const [iframeBlocked, setIframeBlocked] = useState(false);
+
+  // Check if this domain blocks embedding
+  const isEmbedBlocked = BLOCKED_EMBED_DOMAINS.some(domain => item.url.includes(domain));
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -226,6 +234,9 @@ const ContentModal: React.FC<{
     }
   };
 
+  // Show preview card for blocked sites
+  const showPreviewCard = isEmbedBlocked || iframeBlocked;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-fade-in"
@@ -235,60 +246,108 @@ const ContentModal: React.FC<{
       aria-labelledby="modal-title"
     >
       <div
-        className="relative w-full max-w-6xl h-[90vh] flex flex-col animate-scale-in"
+        className={`relative w-full ${showPreviewCard ? 'max-w-2xl' : 'max-w-6xl h-[90vh]'} flex flex-col animate-scale-in`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 flex items-center justify-center ${
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute -top-12 right-0 text-white hover:text-block-red transition-colors flex items-center gap-2 font-bold uppercase tracking-wider text-sm group"
+          aria-label="Close modal"
+        >
+          <span className="group-hover:underline">Close</span>
+          <div className="w-8 h-8 border border-white/30 flex items-center justify-center group-hover:border-block-red group-hover:bg-block-red transition-all">
+            <X size={16} />
+          </div>
+        </button>
+
+        {showPreviewCard ? (
+          // Preview Card for sites that block embedding
+          <div className="bg-block-gray border border-white/10 overflow-hidden">
+            {/* Header with source logo/color */}
+            <div className={`p-6 ${
               item.type === 'article' ? 'bg-blue-600' :
               item.type === 'podcast' ? 'bg-purple-600' :
               'bg-block-red'
             }`}>
-              {getIcon()}
+              <div className="flex items-center gap-3 mb-4">
+                {getIcon()}
+                <span className="text-white/80 text-sm font-bold uppercase tracking-wider">{item.type}</span>
+              </div>
+              <p className="text-white font-bold text-lg uppercase tracking-wider">{item.source}</p>
             </div>
-            <div>
-              <p className="text-block-red text-sm font-bold uppercase tracking-wider">{item.source}</p>
-              <h3 id="modal-title" className="font-display font-bold text-xl uppercase text-white">{item.title}</h3>
+
+            {/* Content */}
+            <div className="p-6">
+              <h3 id="modal-title" className="font-display font-bold text-2xl md:text-3xl uppercase text-white mb-4 leading-tight">
+                {item.title}
+              </h3>
+
+              {item.description && (
+                <p className="text-gray-400 text-lg mb-6 leading-relaxed">{item.description}</p>
+              )}
+
+              <p className="text-gray-500 text-sm mb-6 font-mono">{item.date}</p>
+
+              {/* CTA Button */}
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-block-red text-white font-bold uppercase tracking-widest hover:bg-red-600 transition-colors"
+              >
+                {item.type === 'article' ? 'Read Article' : item.type === 'podcast' ? 'Listen Now' : 'Watch Now'}
+                <ArrowUpRight size={20} />
+              </a>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-white hover:text-block-red transition-colors flex items-center gap-2 font-bold uppercase tracking-wider text-sm group"
-            aria-label="Close modal"
-          >
-            <span className="group-hover:underline hidden sm:inline">Close</span>
-            <div className="w-10 h-10 border border-white/30 flex items-center justify-center group-hover:border-block-red group-hover:bg-block-red transition-all">
-              <X size={20} />
+        ) : (
+          // Iframe embed for sites that allow it
+          <>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 flex items-center justify-center ${
+                  item.type === 'article' ? 'bg-blue-600' :
+                  item.type === 'podcast' ? 'bg-purple-600' :
+                  'bg-block-red'
+                }`}>
+                  {getIcon()}
+                </div>
+                <div>
+                  <p className="text-block-red text-sm font-bold uppercase tracking-wider">{item.source}</p>
+                  <h3 id="modal-title" className="font-display font-bold text-xl uppercase text-white">{item.title}</h3>
+                </div>
+              </div>
             </div>
-          </button>
-        </div>
 
-        {/* Content */}
-        <div className="flex-1 bg-white border border-white/10 overflow-hidden">
-          <iframe
-            src={item.url}
-            title={item.title}
-            className="w-full h-full"
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-          />
-        </div>
+            {/* Content */}
+            <div className="flex-1 bg-white border border-white/10 overflow-hidden">
+              <iframe
+                src={item.url}
+                title={item.title}
+                className="w-full h-full"
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                onError={() => setIframeBlocked(true)}
+              />
+            </div>
 
-        {/* Footer */}
-        <div className="mt-4 flex items-center justify-between">
-          {item.description && (
-            <p className="text-gray-400 text-sm max-w-2xl">{item.description}</p>
-          )}
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors ml-auto"
-          >
-            Open in new tab <ArrowUpRight size={14} />
-          </a>
-        </div>
+            {/* Footer */}
+            <div className="mt-4 flex items-center justify-between">
+              {item.description && (
+                <p className="text-gray-400 text-sm max-w-2xl">{item.description}</p>
+              )}
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors ml-auto"
+              >
+                Open in new tab <ArrowUpRight size={14} />
+              </a>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -385,7 +444,7 @@ const HostPage: React.FC<HostPageProps> = ({ onNavigateHome }) => {
                         href="https://www.instagram.com/flashysillah/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-block-red transition-colors"
+                        className="w-10 h-10 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-block-red hover:scale-110 transition-all duration-300"
                         aria-label="Follow on Instagram"
                       >
                         <Instagram size={20} />
@@ -394,7 +453,7 @@ const HostPage: React.FC<HostPageProps> = ({ onNavigateHome }) => {
                         href="https://twitter.com/FlashySillah"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-block-red transition-colors"
+                        className="w-10 h-10 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-block-red hover:scale-110 transition-all duration-300"
                         aria-label="Follow on X/Twitter"
                       >
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -405,7 +464,7 @@ const HostPage: React.FC<HostPageProps> = ({ onNavigateHome }) => {
                         href="https://www.youtube.com/@theblockreport_"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-block-red transition-colors"
+                        className="w-10 h-10 bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-block-red hover:scale-110 transition-all duration-300"
                         aria-label="Subscribe on YouTube"
                       >
                         <Youtube size={20} />
@@ -417,10 +476,10 @@ const HostPage: React.FC<HostPageProps> = ({ onNavigateHome }) => {
 
               {/* Bio */}
               <div className="lg:col-span-8">
-                <h1 className="font-display font-black text-5xl md:text-8xl uppercase tracking-tighter mb-4">
-                  Flashy <span className="text-block-red">Sillah</span>
+                <h1 className="font-display font-black text-5xl md:text-8xl uppercase tracking-tighter mb-4 animate-slide-up">
+                  Flashy <span className="text-block-red animate-pulse-subtle">Sillah</span>
                 </h1>
-                <p className="text-xl text-gray-400 mb-6">
+                <p className="text-xl text-gray-400 mb-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
                   The Voice of the Streets. The Pulse of the Culture.
                 </p>
 
@@ -440,20 +499,20 @@ const HostPage: React.FC<HostPageProps> = ({ onNavigateHome }) => {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                  <div className="bg-white/5 border border-white/10 p-4 text-center">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 stagger-children">
+                  <div className="bg-white/5 border border-white/10 p-4 text-center hover:border-block-red/50 hover:bg-white/10 transition-all duration-300 hover-lift animate-slide-up">
                     <div className="font-display font-bold text-3xl text-block-red">30+</div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider">Episodes</div>
                   </div>
-                  <div className="bg-white/5 border border-white/10 p-4 text-center">
+                  <div className="bg-white/5 border border-white/10 p-4 text-center hover:border-block-red/50 hover:bg-white/10 transition-all duration-300 hover-lift animate-slide-up">
                     <div className="font-display font-bold text-3xl text-block-red">17K</div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider">Instagram</div>
                   </div>
-                  <div className="bg-white/5 border border-white/10 p-4 text-center">
+                  <div className="bg-white/5 border border-white/10 p-4 text-center hover:border-block-red/50 hover:bg-white/10 transition-all duration-300 hover-lift animate-slide-up">
                     <div className="font-display font-bold text-3xl text-block-red">5+</div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider">Brand Partners</div>
                   </div>
-                  <div className="bg-white/5 border border-white/10 p-4 text-center">
+                  <div className="bg-white/5 border border-white/10 p-4 text-center hover:border-block-red/50 hover:bg-white/10 transition-all duration-300 hover-lift animate-slide-up">
                     <div className="font-display font-bold text-3xl text-block-red">Rinse</div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider">FM Resident</div>
                   </div>
@@ -461,8 +520,12 @@ const HostPage: React.FC<HostPageProps> = ({ onNavigateHome }) => {
 
                 {/* Brand Collaborations */}
                 <div className="flex flex-wrap gap-3">
-                  {['MOBOs', 'Amazon Music', 'Rolling Loud', 'JD Sports', 'Adidas', 'Complex UK', 'Mixtape Madness', 'Rinse FM'].map((brand) => (
-                    <span key={brand} className="px-3 py-1 bg-white/5 border border-white/10 text-sm text-gray-400">
+                  {['MOBOs', 'Amazon Music', 'Rolling Loud', 'JD Sports', 'Adidas', 'Complex UK', 'Mixtape Madness', 'Rinse FM'].map((brand, index) => (
+                    <span
+                      key={brand}
+                      className="px-3 py-1 bg-white/5 border border-white/10 text-sm text-gray-400 hover:bg-block-red hover:border-block-red hover:text-white transition-all duration-300 cursor-default animate-slide-up"
+                      style={{ animationDelay: `${0.3 + index * 0.05}s` }}
+                    >
                       {brand}
                     </span>
                   ))}
@@ -492,7 +555,7 @@ const HostPage: React.FC<HostPageProps> = ({ onNavigateHome }) => {
                   >
                     {/* Content */}
                     <div className={`flex-1 ml-12 md:ml-0 ${index % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12'}`}>
-                      <div className="bg-white/5 border border-white/10 p-6 hover:border-block-red/50 transition-colors">
+                      <div className="bg-white/5 border border-white/10 p-6 hover:border-block-red/50 hover:bg-white/10 transition-all duration-300 hover-lift">
                         <span className="text-block-red font-mono text-sm">{item.year}</span>
                         <h3 className="font-display font-bold text-xl uppercase mt-1 mb-2">{item.title}</h3>
                         <p className="text-gray-400 text-sm">{item.description}</p>
@@ -564,7 +627,7 @@ const HostPage: React.FC<HostPageProps> = ({ onNavigateHome }) => {
                 {filteredMedia.map((item, index) => (
                   <article
                     key={item.id}
-                    className={`group cursor-pointer bg-white/5 border border-white/10 hover:border-block-red/50 transition-all duration-500 ${
+                    className={`group cursor-pointer bg-white/5 border border-white/10 hover:border-block-red/50 hover:bg-white/10 transition-all duration-500 hover-lift ${
                       isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
                     }`}
                     style={{ transitionDelay: `${Math.min(index * 50, 300)}ms` }}
@@ -636,11 +699,15 @@ const HostPage: React.FC<HostPageProps> = ({ onNavigateHome }) => {
           </section>
 
           {/* Notable Interviews */}
-          <section className="mt-20 text-center">
+          <section className="mt-20 text-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
             <h2 className="font-display font-bold text-2xl uppercase mb-4 text-gray-500">Notable Interviews Conducted</h2>
             <div className="flex flex-wrap justify-center gap-4">
-              {['Ghetts', 'Jadakiss', 'Vybz Kartel', 'Youngs Teflon', 'Kojey Radical', 'M1OnTheBeat', 'NLE Choppa'].map((artist) => (
-                <span key={artist} className="px-4 py-2 border border-white/20 text-white font-display font-bold uppercase">
+              {['Ghetts', 'Jadakiss', 'Vybz Kartel', 'Youngs Teflon', 'Kojey Radical', 'M1OnTheBeat', 'NLE Choppa'].map((artist, index) => (
+                <span
+                  key={artist}
+                  className="px-4 py-2 border border-white/20 text-white font-display font-bold uppercase hover:bg-block-red hover:border-block-red transition-all duration-300 cursor-default animate-slide-up"
+                  style={{ animationDelay: `${0.5 + index * 0.05}s` }}
+                >
                   {artist}
                 </span>
               ))}

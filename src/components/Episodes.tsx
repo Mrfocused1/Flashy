@@ -379,10 +379,10 @@ const Episodes: React.FC<EpisodesProps> = ({ onNavigateHome }) => {
               </nav>
             )}
 
-            <h1 className="font-display font-black text-5xl md:text-8xl uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-800 mb-4">
+            <h1 className="font-display font-black text-5xl md:text-8xl uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-800 mb-4 animate-slide-up">
               The Episodes
             </h1>
-            <p className="text-gray-500 text-lg mb-8">
+            <p className="text-gray-500 text-lg mb-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
               {allEpisodes.length} videos from The Block Report
             </p>
 
@@ -418,15 +418,16 @@ const Episodes: React.FC<EpisodesProps> = ({ onNavigateHome }) => {
               {/* Category Filters */}
               <fieldset className={`flex flex-wrap gap-2 ${showFilters ? 'block' : 'hidden lg:flex'}`}>
                 <legend className="sr-only">Filter by category</legend>
-                {categories.map((cat) => (
+                {categories.map((cat, index) => (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`px-4 py-2 text-sm font-bold uppercase tracking-widest border transition-all duration-300 ${
+                    className={`px-4 py-2 text-sm font-bold uppercase tracking-widest border transition-all duration-300 hover:scale-105 ${
                       activeCategory === cat
                         ? 'bg-block-red text-white border-block-red'
                         : 'bg-transparent text-gray-500 border-gray-800 hover:border-gray-500 hover:text-gray-300'
-                    }`}
+                    } animate-slide-up`}
+                    style={{ animationDelay: `${0.2 + index * 0.05}s` }}
                     aria-pressed={activeCategory === cat}
                   >
                     {cat} <span className="text-xs opacity-60">({categoryCounts[cat]})</span>
@@ -453,7 +454,7 @@ const Episodes: React.FC<EpisodesProps> = ({ onNavigateHome }) => {
               {filteredEpisodes.map((ep, index) => (
                 <article
                   key={ep.id}
-                  className={`group cursor-pointer transition-all duration-500 ${
+                  className={`group cursor-pointer transition-all duration-500 hover-lift ${
                     isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
                   }`}
                   style={{ transitionDelay: `${Math.min(index * 30, 300)}ms` }}
@@ -539,14 +540,14 @@ const Episodes: React.FC<EpisodesProps> = ({ onNavigateHome }) => {
           )}
 
           {/* View More on YouTube */}
-          <div className="mt-16 text-center">
+          <div className="mt-16 text-center animate-slide-up" style={{ animationDelay: '0.5s' }}>
             <a
               href="https://www.youtube.com/@theblockreport_"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 border border-white text-white font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-block-black"
+              className="inline-flex items-center gap-2 px-8 py-4 border border-white text-white font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 hover-lift btn-pulse group focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-block-black"
             >
-              Subscribe on YouTube <ArrowUpRight size={18} />
+              Subscribe on YouTube <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
             </a>
           </div>
         </div>

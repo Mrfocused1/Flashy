@@ -62,7 +62,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
     }
   };
 
+  // Build nav links - show Home when not on home page
   const navLinks = [
+    // Only show Home link when not on home page
+    ...(currentView !== 'home' ? [{ name: 'Home', target: 'home', isPage: true, view: 'home' }] : []),
     { name: 'Episodes', target: 'episodes', isPage: true, view: 'episodes' },
     { name: 'The Host', target: 'host', isPage: true, view: 'host' },
     { name: 'Contact', target: '#contact', isPage: false, view: null },
@@ -80,16 +83,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
         {/* Logo */}
         <button
           onClick={(e) => handleNavClick(e, 'home')}
-          className="flex items-center gap-2 group"
+          className="flex items-center group"
           aria-label="Go to homepage"
         >
-          <div className="w-10 h-10 bg-block-red flex items-center justify-center font-display font-bold text-xl skew-x-[-10deg] group-hover:skew-x-0 transition-transform">
-            BR
-          </div>
-          <div className="flex flex-col">
-            <span className="font-display font-bold text-2xl leading-none tracking-tighter uppercase">The Block</span>
-            <span className="font-display font-bold text-lg leading-none tracking-widest text-block-red uppercase">Report</span>
-          </div>
+          <img
+            src="/TBR.svg"
+            alt="The Block Report"
+            className="h-16 md:h-20 w-auto group-hover:scale-105 transition-transform duration-300"
+          />
         </button>
 
         {/* Desktop Nav */}
@@ -124,11 +125,22 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
               <Youtube size={20} />
             </a>
             <a
-              href="#"
+              href="https://www.instagram.com/flashysillah/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hover:text-block-red transition-colors"
-              aria-label="Visit The Block Report on Instagram"
+              aria-label="Follow Flashy Sillah on Instagram"
             >
               <Instagram size={20} />
+            </a>
+            <a
+              href="https://twitter.com/FlashySillah"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-block-red transition-colors"
+              aria-label="Follow Flashy Sillah on X/Twitter"
+            >
+              <Twitter size={20} />
             </a>
           </div>
         </div>
@@ -189,17 +201,21 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
             <Youtube size={32} />
           </a>
           <a
-            href="#"
+            href="https://www.instagram.com/flashysillah/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hover:text-block-red transition-colors"
-            aria-label="Visit The Block Report on Instagram"
+            aria-label="Follow Flashy Sillah on Instagram"
             tabIndex={isMobileMenuOpen ? 0 : -1}
           >
             <Instagram size={32} />
           </a>
           <a
-            href="#"
+            href="https://twitter.com/FlashySillah"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hover:text-block-red transition-colors"
-            aria-label="Visit The Block Report on Twitter"
+            aria-label="Follow Flashy Sillah on X/Twitter"
             tabIndex={isMobileMenuOpen ? 0 : -1}
           >
             <Twitter size={32} />

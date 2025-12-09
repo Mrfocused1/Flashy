@@ -153,33 +153,34 @@ const Showcase: React.FC<ShowcaseProps> = ({ onViewAllEpisodes }) => {
 
   return (
     <>
-      <section id="episodes" className="py-20 bg-block-black relative">
+      <section id="episodes" className="py-20 bg-block-black relative overflow-hidden">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16">
             <div>
-              <h2 className="font-display font-bold text-5xl md:text-7xl uppercase mb-2">Latest <span className="text-block-red">Uploads</span></h2>
+              <h2 className="font-display font-bold text-5xl md:text-7xl uppercase mb-2">Latest <span className="text-block-red animate-pulse-subtle">Uploads</span></h2>
               <p className="text-gray-400 text-lg">Fresh interviews and street content.</p>
             </div>
 {onViewAllEpisodes ? (
               <button
                 onClick={onViewAllEpisodes}
-                className="hidden md:flex items-center gap-2 text-white font-bold uppercase tracking-widest hover:text-block-red transition-colors"
+                className="hidden md:flex items-center gap-2 text-white font-bold uppercase tracking-widest hover:text-block-red transition-colors group"
               >
-                View All Episodes <ArrowUpRight size={20} />
+                View All Episodes <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </button>
             ) : (
-              <a href="https://www.youtube.com/@theblockreport_" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-2 text-white font-bold uppercase tracking-widest hover:text-block-red transition-colors">
-                View Channel <ArrowUpRight size={20} />
+              <a href="https://www.youtube.com/@theblockreport_" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-2 text-white font-bold uppercase tracking-widest hover:text-block-red transition-colors group">
+                View Channel <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </a>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {episodes.map((ep) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
+            {episodes.map((ep, index) => (
               <div
                 key={ep.id}
                 onClick={() => handleVideoClick(ep)}
-                className="group relative cursor-pointer overflow-hidden bg-block-gray block"
+                className="group relative cursor-pointer overflow-hidden bg-block-gray block hover-lift card-tilt animate-slide-up"
+                style={{ animationDelay: `${index * 0.1}s` }}
                 onMouseEnter={() => setHoveredId(ep.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
