@@ -160,8 +160,8 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
       {/* Mobile Menu */}
       <div
         id="mobile-menu"
-        className={`fixed inset-0 bg-block-black z-40 flex flex-col items-center justify-center gap-8 transition-transform duration-500 ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed inset-0 bg-block-black z-[60] flex flex-col items-center justify-center gap-8 transition-all duration-500 ${
+          isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
         aria-hidden={!isMobileMenuOpen}
       >
