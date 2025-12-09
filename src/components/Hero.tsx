@@ -22,7 +22,7 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden pb-20">
       {/* Background Images Slideshow */}
       <div className="absolute inset-0 z-0">
         {HERO_VIDEO_IDS.map((videoId, index) => (
@@ -44,7 +44,7 @@ const Hero: React.FC = () => {
       </div>
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-10 right-6 md:right-20 z-20 flex gap-2">
+      <div className="absolute bottom-24 right-6 md:right-20 z-20 flex gap-2">
         {HERO_VIDEO_IDS.map((_, index) => (
           <button
             key={index}
@@ -95,7 +95,7 @@ const Hero: React.FC = () => {
       </div>
 
       {/* Floating Elements decoration */}
-      <div className="absolute bottom-10 left-6 md:left-20 hidden md:block">
+      <div className="absolute bottom-24 left-6 md:left-20 hidden md:block">
          <p className="font-display font-bold text-6xl opacity-10">THE CULTURE</p>
       </div>
       <div className="absolute top-1/2 right-6 md:right-20 -translate-y-1/2 hidden md:block rotate-90 origin-right">
